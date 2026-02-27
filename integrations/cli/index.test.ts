@@ -1294,6 +1294,55 @@ describe.each([
       })
     },
   )
+
+  test(
+    'sort-classes subcommand sorts classes via stdin/stdout',
+    {
+      fs: {
+        'package.json': json`
+          {
+            "dependencies": {
+              "tailwindcss": "workspace:^",
+              "@tailwindcss/cli": "workspace:^"
+            }
+          }
+        `,
+      },
+    },
+    async ({ exec, expect }) => {
+      let result = await exec(`${command} sort-classes`, undefined, {
+        stdin: ['py-3 p-1 px-3', 'b p-1 a', '', 'focus:hover:p-3 hover:p-1 px-3'].join('\n'),
+      })
+      let lines = result.split('\n')
+      expect(lines[0]).toBe('p-1 px-3 py-3')
+      expect(lines[1]).toBe('b a p-1')
+      expect(lines[2]).toBe('')
+      expect(lines[3]).toBe('px-3 hover:p-1 focus:hover:p-3')
+    },
+  )
+
+  test(
+    'sort-classes subcommand removes duplicate known classes',
+    {
+      fs: {
+        'package.json': json`
+          {
+            "dependencies": {
+              "tailwindcss": "workspace:^",
+              "@tailwindcss/cli": "workspace:^"
+            }
+          }
+        `,
+      },
+    },
+    async ({ exec, expect }) => {
+      let result = await exec(`${command} sort-classes`, undefined, {
+        stdin: 'p-1 px-3 p-1',
+      })
+      let lines = result.split('\n')
+      expect(lines[0]).toBe('p-1 px-3')
+    },
+  )
 })
 
 test(

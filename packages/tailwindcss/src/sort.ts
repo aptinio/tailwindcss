@@ -1,6 +1,30 @@
 import { compileCandidates } from './compile'
 import type { DesignSystem } from './design-system'
 
+export function sortClassList(design: DesignSystem, classes: string[]): string[] {
+  let orderedClasses = getClassOrder(design, classes)
+
+  orderedClasses.sort(([, a], [, z]) => {
+    if (a === z) return 0
+    if (a === null) return -1
+    if (z === null) return 1
+    if (a > z) return 1
+    if (a < z) return -1
+    return 0
+  })
+
+  // Remove duplicate known classes
+  let seen = new Set<string>()
+  return orderedClasses
+    .filter(([cls, order]) => {
+      if (order === null) return true
+      if (seen.has(cls)) return false
+      seen.add(cls)
+      return true
+    })
+    .map(([cls]) => cls)
+}
+
 export function getClassOrder(design: DesignSystem, classes: string[]): [string, bigint | null][] {
   // Generate a sorted AST
   let { astNodes, nodeSorting } = compileCandidates(Array.from(classes), design)

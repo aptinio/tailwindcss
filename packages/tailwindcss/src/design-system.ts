@@ -18,7 +18,7 @@ import {
   type ClassEntry,
   type VariantEntry,
 } from './intellisense'
-import { getClassOrder } from './sort'
+import { getClassOrder, sortClassList } from './sort'
 import type { SourceLocation } from './source-maps/source'
 import { Theme, ThemeOptions, type ThemeKey } from './theme'
 import { Utilities, createUtilities, withAlpha } from './utilities'
@@ -43,6 +43,7 @@ export type DesignSystem = {
   important: boolean
 
   getClassOrder(classes: string[]): [string, bigint | null][]
+  sortClassList(classes: string[]): string[]
   getClassList(): ClassEntry[]
   getVariants(): VariantEntry[]
 
@@ -166,6 +167,9 @@ export function buildDesignSystem(
 
     getClassOrder(classes) {
       return getClassOrder(this, classes)
+    },
+    sortClassList(classes) {
+      return sortClassList(this, classes)
     },
     getClassList() {
       return getClassList(this)

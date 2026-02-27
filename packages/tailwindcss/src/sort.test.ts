@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { type DesignSystem } from './design-system'
 import { __unstable__loadDesignSystem } from './index'
 
@@ -127,3 +127,39 @@ function shuffle<T>(arr: T[]): T[] {
 
   return arr
 }
+
+describe('sortClassList', () => {
+  test('known classes are reordered by canonical order', async () => {
+    let design = await loadDesign()
+    expect(design.sortClassList(['py-3', 'p-1', 'px-3'])).toEqual(['p-1', 'px-3', 'py-3'])
+  })
+
+  test('unknown classes sort to front, preserving relative order', async () => {
+    let design = await loadDesign()
+    expect(design.sortClassList(['b', 'p-1', 'a'])).toEqual(['b', 'a', 'p-1'])
+  })
+
+  test('duplicate known classes are removed', async () => {
+    let design = await loadDesign()
+    expect(design.sortClassList(['p-1', 'px-3', 'p-1'])).toEqual(['p-1', 'px-3'])
+  })
+
+  test('duplicate unknown classes are NOT removed', async () => {
+    let design = await loadDesign()
+    expect(design.sortClassList(['a', 'p-1', 'a'])).toEqual(['a', 'a', 'p-1'])
+  })
+
+  test('variants sort correctly', async () => {
+    let design = await loadDesign()
+    expect(design.sortClassList(['focus:hover:p-3', 'hover:p-1', 'px-3'])).toEqual([
+      'px-3',
+      'hover:p-1',
+      'focus:hover:p-3',
+    ])
+  })
+
+  test('important classes sort correctly', async () => {
+    let design = await loadDesign()
+    expect(design.sortClassList(['px-3', 'py-4!', 'p-1'])).toEqual(['p-1', 'px-3', 'py-4!'])
+  })
+})
